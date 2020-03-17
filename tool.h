@@ -21,7 +21,7 @@
     #define MLOGD(fmt,...)  ;
 #endif
 
-#define MLOGI(fmt,...)  printf("%s [I] %22s |" fmt "\n",GetSystemTimeStr().c_str(), __FUNCTION__, ##__VA_ARGS__)
+#define MLOGI(fmt,...)  printf("%s [I] %22s |" fmt "\n",stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 #define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 #define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 //--------------------------------LOG ABOUT---------------------------------------
@@ -36,6 +36,8 @@
 
 #include <unistd.h>
 #include <sys/time.h>
+
+
 #define M_USLEEP(x)     usleep((x))
 #define M_MSLEEP(x)     usleep( (x)*1000 )
 #define M_SLEEP(x)      usleep( (x)*1000*1000 )
