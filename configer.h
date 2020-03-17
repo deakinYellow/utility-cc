@@ -4,9 +4,6 @@
 #include <iostream>
 #include "yaml-cpp/yaml.h"
 
-using std::cout;
-using std::endl;
-
 
 //c++ CONFIG class  (  yaml or ini)
 class Configer  

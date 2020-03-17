@@ -3,8 +3,6 @@
 
 #include <iostream>
 
-using std::cout;
-using std::endl;
 
 
 typedef struct LinearEuqation2P{
@@ -14,6 +12,52 @@ typedef struct LinearEuqation2P{
     long y2;
 }LinearEuqation2P;
 
+namespace  stool {
+
+//获取系统毫秒级时间戳
+static inline long sys_ms_ts( void ) {
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    return tv.tv_sec*1000 + tv.tv_usec/1000;  //获取毫秒
+}
+
+//毫秒级时间戳格式化输出 //格式如下:2019/07/14 00:48:13.298
+static std::string inline ms_ts2str( long stamp ){
+    time_t tt = time_t( stamp / 1000 );
+    struct tm *ttime;
+    ttime = localtime(&tt);
+    char date[64];
+    strftime(date,64,"%Y/%m/%d %H:%M:%S",ttime);
+    std::string timeStr;
+    char msStr[4];
+    int ms = int( stamp % 1000);
+    sprintf(msStr, "%d", ms );
+    timeStr += date;
+    if( ms < 100 && ms > 10 )
+        timeStr += ".0";
+    else if( ms < 10 )
+        timeStr += ".00";
+    else
+        timeStr += ".";
+    timeStr += msStr;
+    return timeStr;
+}
+
+//获取系统毫秒级时间字符串
+static std::string inline sys_ms_ts_str( void ){
+    long ms_timestamp = sys_ms_ts();
+    return ms_ts2str( ms_timestamp ) ;
+}
+
+//获取系统秒级时间字符串
+static std::string inline sys_s_ts_str( void ){
+    std::string s = sys_ms_ts_str();
+    return s.substr(0, ( s.size() - 4 )) ;
+}
+
+}
+
+
 
 /**
  * @brief 小工具,一些常用的简单操作如:
@@ -22,6 +66,10 @@ typedef struct LinearEuqation2P{
  * read config file.
  */
 namespace  stool {
+
+    using std::cout;
+    using std::endl;
+
     //非阻塞获取键盘输入  //还需要处理特殊按键(如方向键,小键盘上的,功能键等)
     static char get_key()
     {
@@ -39,7 +87,7 @@ namespace  stool {
         tv.tv_sec = 0;
         tv.tv_usec = 10; //设置等待超时时间
         //检测键盘是否有输入
-        if( select(1, &rfds, NULL, NULL, &tv ) > 0)
+        if( select(1, &rfds, nullptr, nullptr, &tv ) > 0)
         {
            ch = getchar();
            //printf("a==========%d \n", ch );
@@ -54,7 +102,7 @@ namespace  stool {
         }
         //std::cin.sync();  //放弃缓冲区所有内容
         ty = system("stty cooked");   /*使终端驱动回到一次一行模式*/
-        return ch;
+        return char( ch );
     }
 
     //variable value limit
@@ -148,11 +196,15 @@ namespace  stool {
     }
     //1元线性方程 输入coeff:直线上两点,x 返回 y 值
     static long LinearEuqation( LinearEuqation2P coeff, long x ){
-        double k = (double)( coeff.y2 - coeff.y1 ) / (double)( coeff.x2 - coeff.x1 );
-        long y = k * ( x - coeff.x1 ) + coeff.y1;
+        double k = double( coeff.y2 - coeff.y1 ) / double( coeff.x2 - coeff.x1 );
+        long y = long( k * ( x - coeff.x1 ) + coeff.y1 );
         return y;
     }
 }
+
+
+
+
 
 #endif // STOOL_H
 
