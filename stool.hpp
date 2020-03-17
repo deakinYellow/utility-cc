@@ -2,17 +2,14 @@
 #define STOOL_H
 
 #include <iostream>
+#include<sstream>
 
 
-
-typedef struct LinearEuqation2P{
-    long x1;
-    long y1;
-    long x2;
-    long y2;
-}LinearEuqation2P;
 
 namespace  stool {
+
+#include <unistd.h>
+#include <sys/time.h>
 
 //获取系统毫秒级时间戳
 static inline long sys_ms_ts( void ) {
@@ -58,7 +55,6 @@ static std::string inline sys_s_ts_str( void ){
 }
 
 
-
 /**
  * @brief 小工具,一些常用的简单操作如:
  * 整形字符串相互转换
@@ -67,8 +63,17 @@ static std::string inline sys_s_ts_str( void ){
  */
 namespace  stool {
 
+
     using std::cout;
     using std::endl;
+
+    typedef struct LinearEuqation2P{
+        long x1;
+        long y1;
+        long x2;
+        long y2;
+    }LinearEuqation2P;
+
 
     //非阻塞获取键盘输入  //还需要处理特殊按键(如方向键,小键盘上的,功能键等)
     static char get_key()
