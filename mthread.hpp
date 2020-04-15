@@ -14,9 +14,9 @@
 template <typename TYPE, void (TYPE::*process_)() >
 void* _thread_t(void* param )
 {
-    TYPE* This = (TYPE*)param;
+    TYPE* This = (TYPE*)param ;
     This->process_();
-    return NULL;
+    return nullptr;
 }
 
 

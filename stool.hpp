@@ -2,58 +2,8 @@
 #define STOOL_H
 
 #include <iostream>
-#include<sstream>
-
-
-
-namespace  stool {
-
-#include <unistd.h>
-#include <sys/time.h>
-
-//获取系统毫秒级时间戳
-static inline long sys_ms_ts( void ) {
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
-    return tv.tv_sec*1000 + tv.tv_usec/1000;  //获取毫秒
-}
-
-//毫秒级时间戳格式化输出 //格式如下:2019/07/14 00:48:13.298
-static std::string inline ms_ts2str( long stamp ){
-    time_t tt = time_t( stamp / 1000 );
-    struct tm *ttime;
-    ttime = localtime(&tt);
-    char date[64];
-    strftime(date,64,"%Y/%m/%d %H:%M:%S",ttime);
-    std::string timeStr;
-    char msStr[4];
-    int ms = int( stamp % 1000);
-    sprintf(msStr, "%d", ms );
-    timeStr += date;
-    if( ms < 100 && ms > 10 )
-        timeStr += ".0";
-    else if( ms < 10 )
-        timeStr += ".00";
-    else
-        timeStr += ".";
-    timeStr += msStr;
-    return timeStr;
-}
-
-//获取系统毫秒级时间字符串
-static std::string inline sys_ms_ts_str( void ){
-    long ms_timestamp = sys_ms_ts();
-    return ms_ts2str( ms_timestamp ) ;
-}
-
-//获取系统秒级时间字符串
-static std::string inline sys_s_ts_str( void ){
-    std::string s = sys_ms_ts_str();
-    return s.substr(0, ( s.size() - 4 )) ;
-}
-
-}
-
+#include <vector>
+#include <sstream>
 
 /**
  * @brief 小工具,一些常用的简单操作如:
@@ -112,7 +62,7 @@ namespace  stool {
 
     //variable value limit
     template<typename T>
-    static T limit_value( T& value, T min, T max ) {
+    static T limit_value( const T min, const T max, T& value ) {
         T temp_v = value;
         if( temp_v < min ){
             value = min;
@@ -130,7 +80,7 @@ namespace  stool {
     * @note //转换结果,低位在前
     */
     template<typename T>
-    static T bytes2T(unsigned char *bytes) {
+    static T bytes2T( unsigned char *bytes ){
         T res = 0;
         int n = sizeof(T);
         memcpy(&res, bytes, n);
@@ -151,6 +101,24 @@ namespace  stool {
         unsigned char* b = new unsigned char[n];
         memcpy(b, &u, n);
         return b;
+    }
+
+    /**
+    * @brief  将std::vector<uint8_t>类型, 转化为整形输出
+    *         支持有符号无符号
+    * @param  [in] 待转换数据,为小端排序
+    * @retval
+    * @note //转换结果
+    */
+    template<typename T>
+    static T vectorU82integerT( std::vector<uint8_t> d ){
+        uint64_t res = 0;
+        uint64_t base = 1;
+        for ( ulong i = 0; i < d.size(); i++ ) {
+            res +=  d[  i ] * base ;
+            base *= 256;
+        }
+        return T( res );
     }
 
     /**
@@ -199,16 +167,78 @@ namespace  stool {
         str += numStr;
         return 0;
     }
+
+
     //1元线性方程 输入coeff:直线上两点,x 返回 y 值
     static long LinearEuqation( LinearEuqation2P coeff, long x ){
         double k = double( coeff.y2 - coeff.y1 ) / double( coeff.x2 - coeff.x1 );
         long y = long( k * ( x - coeff.x1 ) + coeff.y1 );
         return y;
     }
+
+//计算FPS
+class FPS {
+
+public:
+    void Sampling(){
+
+        long current_time = stool::sys_ms_ts();
+        //printf("current_time: %ld \n" , current_time );
+        uint normal_fps =  fpsNormal( current_time );
+        if( normal_fps != 0 ){
+            this->fps_normal = normal_fps;
+        }
+        fps_real = fpsReal( current_time );
+        fps_average = fpsAverage( current_time );
+
+    }
+    uint   fps_normal;
+    double fps_average;
+    double fps_real;
+
+private:
+    //秒级实时帧率，帧率为整数
+    uint fpsNormal( const long current_time ){
+        static uint count = 0;
+        static long last_count_time =0;
+        uint fps = 0;
+        count++;
+        if( current_time - last_count_time >= 1000 ){
+           fps = count;
+           count = 0;
+           last_count_time = current_time;
+        }
+        return fps;
+    }
+    //实时帧率 //平滑性不好
+    double fpsReal( const long current_time ){
+        static long last_time =0;
+        double fps = 0;
+        //printf("dt time: %ld \n" , current_time - last_time );
+        if( current_time != last_time ){
+            fps = 1000.0 / double( current_time - last_time );
+            last_time = current_time;
+        }
+        return fps;
+    }
+    //总平均帧率
+    double fpsAverage( const long current_time ){
+        static long last_count_time =0;
+        static long count =0;
+        count++;
+        if( last_count_time == 0 && current_time != 0 ){
+            last_count_time = current_time;
+            return  0;
+        }else if( current_time != last_count_time ){
+            double fps = 1000 * ( double( count )  / double( current_time - last_count_time ) );
+            return fps;
+        }
+    }
+
+};
+
+
 }
-
-
-
 
 
 #endif // STOOL_H
