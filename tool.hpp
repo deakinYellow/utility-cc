@@ -79,12 +79,53 @@ static std::string inline sys_s_ts_str( void ){
 #define  TIME_COSTLOGD MLOGD("cost time: %f ms.",(float)TIME_COST )
 
 
-#include <unistd.h>
-#include <sys/time.h>
+//#include <unistd.h>
+#include <time.h>
 
-#define M_USLEEP(x)     usleep((x))
-#define M_MSLEEP(x)     usleep( (x)*1000 )
-#define M_SLEEP(x)      usleep( (x)*1000*1000 )
+////使用select封装微秒级延时替代usleep(已废弃)
+static void select_usleep( long us ) {
+    struct timeval timeout;
+    timeout.tv_sec = us / 1000000;
+    timeout.tv_usec = us % 1000000;
+    while (true) {
+         select( 0, nullptr, nullptr, nullptr, &timeout );
+         if ( timeout.tv_sec<=0 && timeout.tv_usec<=0) {
+            break;
+         }
+    }
+}
+////使用nanosleep封装微秒级延时替代usleep(已废弃)
+static void nano_usleep( uint32_t useconds ) {
+    struct timespec ts = {
+        useconds / 1000000,
+        (useconds % 1000000) * 1000
+    };
+    while( true ){
+        int ret = nanosleep( &ts, &ts );
+        if( ret < 0 ){
+            if( EINTR == errno ){   ///收到中断信号
+                printf("nano_usleep receives the interrupt signal.\n");
+                continue;
+            }
+        }
+        else if( ret == 0 ){
+            break;
+        }
+    }
+}
+
+#define USE_SELECT_SELLP 0
+#if USE_SELECT_SELLP
+#define M_USLEEP(x)     select_usleep( x )
+#define M_MSLEEP(x)     select_usleep( x * 1000 )
+#define M_SLEEP(x)      select_usleep( x * 1000 * 1000 )
+#else
+#define M_USLEEP(x)     nano_usleep( x )
+#define M_MSLEEP(x)     nano_usleep( x * 1000 )
+#define M_SLEEP(x)      nano_usleep( x * 1000 * 1000 )
+#endif
+
+
 //---------------------------------TIME ABOUT-------------------------------------
 
 //---------------------------------OPT RET------------------------------------------
@@ -98,6 +139,8 @@ static std::string inline sys_s_ts_str( void ){
 
 
 #endif
+
+
 
 
 
