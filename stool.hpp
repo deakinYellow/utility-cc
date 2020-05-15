@@ -1,6 +1,10 @@
 #ifndef STOOL_H
 #define STOOL_H
 
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -24,40 +28,38 @@ namespace  stool {
         long y2;
     }LinearEuqation2P;
 
-
-    //非阻塞获取键盘输入  //还需要处理特殊按键(如方向键,小键盘上的,功能键等)
-    static char get_key()
-    {
-        //先清空输入缓冲 //
-        fflush( stdin );
-        /*最初终端驱动处于普通的一次一行模式*/
-        int ty = system("stty raw");   /*使终端驱动处于一次一字符模式*/
-        fd_set rfds;
-        struct timeval tv;
-
-        int ch = 0;
-
-        FD_ZERO(&rfds);
-        FD_SET(0, &rfds);
-        tv.tv_sec = 0;
-        tv.tv_usec = 10; //设置等待超时时间
-        //检测键盘是否有输入
-        if( select(1, &rfds, nullptr, nullptr, &tv ) > 0)
-        {
-           ch = getchar();
-           //printf("a==========%d \n", ch );
-           /*
-           if( ch == 27 ){
-                ch = getchar();
-                printf("b==========%d \n", ch );
-                ch = getchar();
-                printf("c==========%d \n", ch );
-           }
-           */
+    ///检测键盘是否有输入
+    ///是返回1,否返回0
+    static int kbhit(void) {
+        struct termios oldt, newt;
+        int ch;
+        int oldf;
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+        fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        fcntl(STDIN_FILENO, F_SETFL, oldf);
+        if(ch != EOF) {    ///正常值返回等待用户去读
+            ungetc(ch, stdin);
+            return 1;
         }
-        //std::cin.sync();  //放弃缓冲区所有内容
-        ty = system("stty cooked");   /*使终端驱动回到一次一行模式*/
-        return char( ch );
+        return 0;
+    }
+
+    //非阻塞获取键盘输入
+    //耗时小，微妙级，可单独开线程也可直接扫描
+    //存在问题: 只适合单键值输入，还需要处理特殊按键(如方向键,小键盘上的,功能键等)
+    static char get_key( void ){
+        char ch = -1;
+        //检测键盘是否有输入
+        if( kbhit() ){
+            ch = char( getchar() );
+        }
+        return ch;
     }
 
     //variable value limit
@@ -181,7 +183,6 @@ class FPS {
 
 public:
     void Sampling(){
-
         long current_time = stool::sys_ms_ts();
         //printf("current_time: %ld \n" , current_time );
         uint normal_fps =  fpsNormal( current_time );

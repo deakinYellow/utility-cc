@@ -1,73 +1,92 @@
-#ifndef MTHREAD_H
-#define MTHREAD_H
+#ifndef MTHREAD_HPP
+#define MTHREAD_HPP
 
 #include <iostream>
-#include <mutex>
 #include <pthread.h>
 
-//函数模版不单可以替换类型本身，还能替换类型的成员函数。
-/*
- * @brief 使用非静态成员函数,做为线程函数
- * @note：1.名称只能是 process_，不能在指定模版参数的时候修改；
- *        2. process_,不能在指定模版参数的时候修改； 只能是public的，除非把_thread_t定义到MyClass的内部。
+/**
+ * @brief 创建新线程,自动回收资源
+ * @note
  */
-template <typename TYPE, void (TYPE::*process_)() >
-void* _thread_t(void* param )
-{
-    TYPE* This = (TYPE*)param ;
-    This->process_();
-    return nullptr;
-}
+class MThread {
 
-
-//可作为模板使用,替换类名即可
-#define TEST_MTHREAD  0
-#if TEST_MTHREAD
-
-#include "utility/tool.h"
-
-class MThread
-{
 public:
-    std::string text;
-    //线程函数
-    void _runThread(){
-        //this->DoSomeThing();
-        while( true ){
-            std::cout << this->text << std::endl;
-            TPMSLEEP(10);
-        }
+
+    MThread(){
+      ;
     }
 
-    MThread() {
-        pthread_create(&tid, NULL, _thread_t<MThread, &MThread::_runThread>, this);
+    typedef void* (*callback_t)(void*);
+
+    int Create( callback_t cb, void* arg ){
+        return pthread_create( &thread_, nullptr, cb, arg );
+    }
+
+    int Destroy(){
+        return pthread_join( thread_, nullptr );
     }
 
     ~MThread(){
-        pthread_join( tid, NULL );  //显示回收线程
+        Destroy();
     }
 
 private:
-    pthread_t tid;
+    pthread_t thread_;
 
 };
 
-//===================测试函数=====================================
-void mthreadTest( void ) {
-    MThread mthread1;
-    mthread1.text = "hello, I am mthread 1.";
-    MThread mthread2;
-    mthread2.text = "hello, I am mthread 2.";
-    MThread mthread3;
-    mthread3.text = "hello, I am mthread 3.";
-    while( true ){
-        TPMSLEEP(10);
-        std::cout << "main thread." << std::endl;
+
+#endif // MTHREAD_HPP
+
+
+#define TEST 0
+#if  TEST
+static int num_g = 0;
+///=====================TPThread TEST==============================
+///只要不含全局变量或局部静态变量，两线程可以共用函数,线程会独立开辟堆栈存储局部变量
+void* testFun1( void* param ){
+    int i = *(int *)param;   //引用参数
+    //num_g = *(int *)param;   //引用参数
+    while (true) {
+        std::cout << "testThread: " << i << std::endl;
+        //std::cout << "testThread: " << num_g << std::endl;
+        long t = 1e10; while ( t-- != 0);
+        //i++;
+        //if( i > 1e6 ){
+            //return NULL;
+        //}
     }
 }
 
-void mthreadTest( void );
+void* testFun2( void* param ){
+    int i = *(int *)param;   //引用参数
+    while (true) {
+        std::cout << "testThread: " << i << std::endl;
+    }
+}
 
+int MThreadTest( void ){
+
+    std::cout << "MThread test1." << std::endl;
+
+    MThread  testThread;
+    int a = 1;
+    if( 0 != testThread.Create( testFun1, &a ) ){
+        std::cout << "creat thread fial." << std::endl;
+        return -1;
+    }
+
+    int b = 2;
+    if( 0 != testThread.Create( testFun1, &b ) ){
+        std::cout << "creat thread fial." << std::endl;
+        return -1;
+    }
+
+    while( true ){
+        long t = 1e10; while ( t-- != 0);
+        //printf("testThread runing\n");
+        a++;
+    }
+    return 0;
+}
 #endif
-
-#endif // MTHREAD_H
