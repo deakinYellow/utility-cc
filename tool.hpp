@@ -76,8 +76,7 @@ static std::string inline sys_s_ts_str( void ){
 #define  TIME_START clock_t startTimeT = clock()
 #define  TIME_END   clock_t endTimeT = clock()
 #define  TIME_COST  ( endTimeT - startTimeT ) / (CLOCKS_PER_SEC / 1000 )
-#define  TIME_COSTLOGD MLOGD("cost time: %f ms.",(float)TIME_COST )
-
+#define  TIME_COSTLOGD MLOGD("cost time: %f ms.",double(TIME_COST) )
 
 //#include <unistd.h>
 #include <time.h>

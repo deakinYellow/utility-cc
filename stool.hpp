@@ -9,6 +9,10 @@
 #include <vector>
 #include <sstream>
 
+#include <algorithm>
+#include <numeric>
+
+
 /**
  * @brief 小工具,一些常用的简单操作如:
  * 整形字符串相互转换
@@ -16,7 +20,6 @@
  * read config file.
  */
 namespace  stool {
-
 
     using std::cout;
     using std::endl;
@@ -27,6 +30,21 @@ namespace  stool {
         long x2;
         long y2;
     }LinearEuqation2P;
+
+    ////数值范围
+    template<typename T>
+    struct  ValueRangeT{
+        T min;
+        T max;
+    };
+
+    template<typename T>
+    static ValueRangeT<T> ValueRange( const T min, const T max ){
+        ValueRangeT<T> range;
+        range.min = min;
+        range.max = max;
+        return range;
+    }
 
     ///检测键盘是否有输入
     ///是返回1,否返回0
@@ -72,6 +90,22 @@ namespace  stool {
             value = max;
         }
         return  value;
+    }
+
+    ////判断数值是否在给定的范围
+    template<typename T>
+    static bool ValueInRange( const T value , const ValueRangeT<T> range , const bool bundary = true ){
+        if( bundary ){
+            if( value >= range.min && value <= range.max ){
+                    return  true;
+            }
+        }
+        else {
+            if( value > range.min && value < range.max ){
+                    return  true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -170,14 +204,12 @@ namespace  stool {
         return 0;
     }
 
-
     //1元线性方程 输入coeff:直线上两点,x 返回 y 值
     static long LinearEuqation( LinearEuqation2P coeff, long x ){
         double k = double( coeff.y2 - coeff.y1 ) / double( coeff.x2 - coeff.x1 );
         long y = long( k * ( x - coeff.x1 ) + coeff.y1 );
         return y;
     }
-
 //计算FPS
 class FPS {
 
@@ -238,9 +270,75 @@ private:
 
 };
 
+}
+
+///-----------------通用算法-------------------------------------
+namespace  stool   {
+    ////利用vector数值对下标进行排序
+    template<typename  T>
+    std::vector<size_t> GetVectorIndexSort( const std::vector<T> v ){
+        ////初始化索引向量
+        std::vector<size_t> index_v(v.size());
+        //使用iota对向量赋0连续值
+        std::iota(  index_v.begin(), index_v.end(), 0 );
+        ///利用v数值对index排序  ///升序
+        std::sort( index_v.begin(), index_v.end(), [&v](size_t it1, size_t it2 ){return v[it1] < v[it2]; }  );
+        return  index_v;
+    }
+
+    ////vector裁剪两端，保留中间部分
+    template<typename  T>
+    void VectorMidleCut( const double reserved_proportion,
+                         std::vector<T>& vector ){
+        long n = long( vector.size() );
+        long exclude = long( n * ( 1 - reserved_proportion ) / 2 );
+        vector.erase( vector.begin(), vector.begin() + exclude );
+        vector.erase( vector.end() - exclude, vector.end() );
+    }
+
+    ////利用下标对vector选择性保存
+    template<typename  T>
+    void VectorSelect(  const std::vector<size_t> index_v, std::vector<T>& v ){
+        std::vector<T> ret_v;
+        for( ulong i = 0; i < index_v.size(); i++ ){
+            ret_v.push_back( v[ index_v[ i ] ] );
+        }
+        v.clear();
+        v.swap( ret_v );
+    }
+
+    ////求vector均值
+    template< typename T>
+    static T GetVetorMean( const std::vector<T>& vector ){
+        double sum = std::accumulate( std::begin( vector ), std::end( vector ), 0.0 );
+        return T( sum / vector.size() );
+    }
+
+    /**
+    * @brief  ///求vector中间部分均值
+    * @param  [in]   reserved_proportion    选取有效比例
+    * @param  [in]   vector                 数据vector
+    * @retval
+    * @note
+    */
+    template<typename  T>
+    T VectorMidleMean( const double valid_proportion,
+                       std::vector<T>& vector ){
+        ///先排序
+        std::sort( std::begin( vector ), std::end( vector ) );
+        //再截取
+        VectorMidleCut( valid_proportion, vector );
+        //求均值返回
+        T mean = GetVetorMean( vector );
+        return mean;
+    }
 
 }
 
 
 #endif // STOOL_H
+
+
+
+
 
