@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 
+#include <cmath>
 #include <algorithm>
 #include <numeric>
 
@@ -272,6 +273,22 @@ private:
 
 }
 
+//-----------------单位转换---------------------------------------
+namespace  stool {
+
+//弧度-角度互相转换
+template<typename T>
+static T Degree( const T &radian ){
+    return T( radian / M_PI * 180.0);
+}
+
+template<typename T>
+static T Radian( const T &degree ){
+    return T( degree / 180.0 *  M_PI );
+}
+
+} ///end of 单位转换
+
 ///-----------------通用算法-------------------------------------
 namespace  stool   {
     ////利用vector数值对下标进行排序
@@ -322,7 +339,7 @@ namespace  stool   {
     * @note
     */
     template<typename  T>
-    T VectorMidleMean( const double valid_proportion,
+    T GetVectorMidleMean( const double valid_proportion,
                        std::vector<T>& vector ){
         ///先排序
         std::sort( std::begin( vector ), std::end( vector ) );
@@ -334,7 +351,6 @@ namespace  stool   {
     }
 
 }
-
 
 #endif // STOOL_H
 

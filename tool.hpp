@@ -66,7 +66,7 @@ static std::string inline sys_s_ts_str( void ){
     #define MLOGD(fmt,...)
 #endif
 
-#define MLOGI(fmt,...)  printf("%s [I] %22s | \033[0;0;33m " fmt "\033[0m\n", stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
+#define MLOGI(fmt,...)  printf("%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n", stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
 #define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 #define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 //--------------------------------LOG ABOUT---------------------------------------

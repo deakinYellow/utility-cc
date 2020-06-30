@@ -59,7 +59,6 @@
 #define ATTINVISIBLE "\33[8m"       //消隐
 
 /* foreground colors */             //前景色
-
 #define FGBLACK   "\33[30m"
 #define FGRED     "\33[31m"
 #define FGGREEN   "\33[32m"
