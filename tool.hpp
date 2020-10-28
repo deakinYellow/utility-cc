@@ -13,11 +13,9 @@
 #include <sys/time.h>
 
 #include "mterminal/terminal.h"
-
 //#define __need_timeval
 
-
-namespace  stool {
+namespace  tool {
 //获取系统毫秒级时间戳
 static inline long sys_ms_ts( void ) {
     struct timeval tv;
@@ -61,22 +59,22 @@ static std::string inline sys_s_ts_str( void ){
 //在需要开启debuglog的目标源文件开头包含tool.h前引入,如果全局开启,则在这里引入
 //#define USING_MLOGD
 #ifdef USING_MLOGD
-    #define MLOGD(fmt,...)  printf("%s [D] %22s | \033[0;0;32m " fmt " \033[0m\n",stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
+    #define MLOGD(fmt,...)  printf("%s [D] %22s | \033[0;0;32m " fmt " \033[0m\n",tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 #else
     #define MLOGD(fmt,...)
 #endif
 
-#define MLOGI(fmt,...)  printf("%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n", stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
-#define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
-#define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",stool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
+#define MLOGI(fmt,...)  printf("%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
+#define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
+#define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
 //--------------------------------LOG ABOUT---------------------------------------
 
 //--------------------------------TIME ABOUT-------------------------------------
 ///特指CPU消耗的实际时间，用来判断某段功能的CPU消耗(例如延时函数就不会消耗太多CPU实际使用时间)
 #define  TIME_START clock_t startTimeT = clock()
 #define  TIME_END   clock_t endTimeT = clock()
-#define  TIME_COST  ( endTimeT - startTimeT ) / (CLOCKS_PER_SEC / 1000 )
-#define  TIME_COSTLOGD MLOGD("cost time: %f ms.",double(TIME_COST) )
+#define  TIME_COST  ( endTimeT - startTimeT ) / (CLOCKS_PER_SEC / 1000.0 )
+#define  TIME_COSTLOGD MLOGD("cost time: %.3f ms.",double(TIME_COST) )
 
 //#include <unistd.h>
 #include <time.h>
@@ -133,13 +131,7 @@ static void nano_usleep( uint32_t useconds ) {
 #define MSTATUS int
 //---------------------------------OPT RET END------------------------------------------
 
-//--------------------------------OTHER  TOOL---------------------------------------
-//#include "utility/configer.h"
-#include "stool.hpp"
-
-
 #endif
-
 
 
 

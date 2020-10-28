@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <numeric>
 
+#include "tool.hpp"
+
 
 /**
  * @brief 小工具,一些常用的简单操作如:
@@ -216,7 +218,7 @@ class FPS {
 
 public:
     void Sampling(){
-        long current_time = stool::sys_ms_ts();
+        long current_time = tool::sys_ms_ts();
         //printf("current_time: %ld \n" , current_time );
         uint normal_fps =  fpsNormal( current_time );
         if( normal_fps != 0 ){
@@ -353,8 +355,6 @@ namespace  stool   {
 }
 
 #endif // STOOL_H
-
-
 
 
 
