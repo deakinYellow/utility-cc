@@ -7,7 +7,9 @@
 #ifndef TOOL_H
 #define TOOL_H
 
+#include <string.h>
 #include <iostream>
+#include <assert.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -15,59 +17,114 @@
 #include "mterminal/terminal.h"
 //#define __need_timeval
 
+#define MS_TIMESTAMP_STR_LENGTH 24
+static char g_msts_str[MS_TIMESTAMP_STR_LENGTH]={'\0'};
+
 namespace  tool {
+
 //获取系统毫秒级时间戳
-static inline long sys_ms_timestamp( void ) {
+static long sys_ms_timestamp( void ) {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     return tv.tv_sec*1000 + tv.tv_usec/1000;  //获取毫秒
 }
-//毫秒级时间戳格式化输出 //格式如下:2019/07/14 00:48:13.298
-static std::string inline ms_ts2str( long stamp ){
+
+///毫秒部分字符串获取
+static void get_msstr( int ms, char* msstr ){
+    int a;
+    a = ms / 100;
+    msstr[0] = char( a + 0x30 );
+    a = ( ms % 100 ) / 10;
+    msstr[1] = char( a + 0x30 );
+    a =  ms % 10 ;
+    msstr[2] = char( a + 0x30 );
+}
+
+///毫秒级时间戳转字符串
+//采用固定长度字符串存储
+//格式如下:2019/07/14 00:48:13.298长度为 MS_TIMESTAMP_STR_LENGTH
+static void  ms_ts2str_c( long stamp, char* timestamp_str ){
     time_t tt = time_t( stamp / 1000 );
     struct tm *ttime;
     ttime = localtime(&tt);
-    char date[64];
-    strftime(date,64,"%Y/%m/%d %H:%M:%S",ttime);
-    std::string timeStr;
-    char msStr[4];
+    char date[20]={'\0'};
+    strftime( date,20,"%Y/%m/%d %H:%M:%S",ttime);//该格式返回的date实际有效长度为19
+    ///先清零
+    memset( timestamp_str,'\0', MS_TIMESTAMP_STR_LENGTH );
+    memcpy( timestamp_str, date,19);
+    memcpy( timestamp_str + 19, ".", 1 );
     int ms = int( stamp % 1000);
-    sprintf(msStr, "%d", ms );
-    timeStr += date;
-    if( ms < 100 && ms > 10 )
-        timeStr += ".0";
-    else if( ms < 10 )
-        timeStr += ".00";
-    else
-        timeStr += ".";
-    timeStr += msStr;
-    return timeStr;
+    char ms_str[4]={'\0'};
+    get_msstr( ms, ms_str );
+    memcpy( timestamp_str + 20, ms_str, 3 );
 }
-//获取系统毫秒级时间字符串
+
+//获取系统毫秒级时间字符串,char*格式
+static void sys_ms_ts_str_c( char* timestamp_str ){
+    long ms_timestamp = sys_ms_timestamp();
+    ms_ts2str_c( ms_timestamp, timestamp_str ) ;
+}
+
+//获取系统毫秒级时间字符串,string格式
 static std::string inline sys_ms_ts_str( void ){
     long ms_timestamp = sys_ms_timestamp();
-    return ms_ts2str( ms_timestamp ) ;
+    char timestamp_str[MS_TIMESTAMP_STR_LENGTH]={'\0'};
+    ms_ts2str_c( ms_timestamp, timestamp_str );
+    std::string out_str( timestamp_str );
+    return out_str;
 }
-//获取系统秒级时间字符串
+
+//获取系统秒级时间字符串, string格式
 static std::string inline sys_s_ts_str( void ){
     std::string s = sys_ms_ts_str();
     return s.substr(0, ( s.size() - 4 )) ;
 }
 
 }
+
 //--------------------------------LOG ABOUT---------------------------------------
 //在需要开启debuglog的目标源文件开头包含tool.h前引入,如果全局开启,则在这里引入
 //#define USING_MLOGD
 #ifdef USING_MLOGD
-    #define MLOGD(fmt,...)  printf("%s [D] %22s | \033[0;0;32m " fmt " \033[0m\n",tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
+    #define MLOGD(format, ...) \
+      do { \
+          tool::sys_ms_ts_str_c( g_msts_str );\
+          fprintf( stdout, "[D] [%s] [%s@%s,%d] \033[0;33;31m " format "\033[0m\n",\
+           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+      } while (0)
 #else
     #define MLOGD(fmt,...)
 #endif
 
-#define MLOGI(fmt,...)  printf("%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
-#define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
-#define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ ) ; assert( false )
+//#define MLOGI(fmt,...)  fprintf(stderr, "%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n",\
+//                                    tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
+//#define MLOGW(fmt,...)  fprintf(stderr, "%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n",\
+//                                    tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
+//#define MLOGE(fmt,...)  fprintf(stderr, "%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",\
+//                                    tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ ) ; assert( false )
+#define MLOGE( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[E] [%s] [%s@%s,%d] \033[0;33;31m " format "\033[0m\n",\
+           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+    } while (0)
+
+#define MLOGW( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[W] [%s] [%s@%s,%d] \033[0;0;33m " format "\033[0m\n",\
+           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+    } while (0)
+
+#define MLOGI( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[I] [%s] [%s@%s,%d] \033[0;0;37m " format "\033[0m\n",\
+           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+    } while (0)
 //--------------------------------LOG ABOUT---------------------------------------
+
+
 
 //--------------------------------TIME ABOUT-------------------------------------
 ///特指CPU消耗的实际时间，用来判断某段功能的CPU消耗(例如延时函数就不会消耗太多CPU实际使用时间)
