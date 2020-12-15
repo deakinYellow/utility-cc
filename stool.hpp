@@ -218,7 +218,7 @@ class FPS {
 
 public:
     void Sampling(){
-        long current_time = tool::sys_ms_ts();
+        long current_time = tool::sys_ms_timestamp();
         //printf("current_time: %ld \n" , current_time );
         uint normal_fps =  fpsNormal( current_time );
         if( normal_fps != 0 ){

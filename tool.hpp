@@ -17,7 +17,7 @@
 
 namespace  tool {
 //获取系统毫秒级时间戳
-static inline long sys_ms_ts( void ) {
+static inline long sys_ms_timestamp( void ) {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     return tv.tv_sec*1000 + tv.tv_usec/1000;  //获取毫秒
@@ -45,7 +45,7 @@ static std::string inline ms_ts2str( long stamp ){
 }
 //获取系统毫秒级时间字符串
 static std::string inline sys_ms_ts_str( void ){
-    long ms_timestamp = sys_ms_ts();
+    long ms_timestamp = sys_ms_timestamp();
     return ms_ts2str( ms_timestamp ) ;
 }
 //获取系统秒级时间字符串
@@ -65,8 +65,8 @@ static std::string inline sys_s_ts_str( void ){
 #endif
 
 #define MLOGI(fmt,...)  printf("%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
-#define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
-#define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__)
+#define MLOGW(fmt,...)  printf("%s [W] %22s | \033[0;0;33m " fmt "\033[0m\n", tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
+#define MLOGE(fmt,...)  printf("%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ ) ; assert( false )
 //--------------------------------LOG ABOUT---------------------------------------
 
 //--------------------------------TIME ABOUT-------------------------------------
