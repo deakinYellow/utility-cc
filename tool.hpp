@@ -89,7 +89,7 @@ static std::string inline sys_s_ts_str( void ){
     #define MLOGD(format, ...) \
       do { \
           tool::sys_ms_ts_str_c( g_msts_str );\
-          fprintf( stdout, "[D] [%s] [%s@%s,%d] \033[0;33;31m " format "\033[0m\n",\
+          fprintf( stdout, "[D] [%s] [%s@%s,%d] \033[0;33;32m " format "\033[0m\n",\
            g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
       } while (0)
 #else
