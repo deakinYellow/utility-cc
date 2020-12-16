@@ -48,7 +48,7 @@ static void  ms_ts2str_c( long stamp, char* timestamp_str ){
     struct tm *ttime;
     ttime = localtime(&tt);
     char date[20]={'\0'};
-    strftime( date,20,"%Y/%m/%d %H:%M:%S",ttime);//该格式返回的date实际有效长度为19
+    strftime( date,20,"%Y-%m-%d %H:%M:%S",ttime);//该格式返回的date实际有效长度为19
     ///先清零
     memset( timestamp_str,'\0', MS_TIMESTAMP_STR_LENGTH );
     memcpy( timestamp_str, date,19);
