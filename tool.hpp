@@ -89,11 +89,18 @@ static std::string inline sys_s_ts_str( void ){
     #define MLOGD(format, ...) \
       do { \
           tool::sys_ms_ts_str_c( g_msts_str );\
-          fprintf( stdout, "[D] [%s] [%s@%s,%d] \033[0;33;32m " format "\033[0m\n",\
-           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+          fprintf( stdout, "[%s] [%s] [D] \033[0;33;32m " format "\033[0m\n",\
+           g_msts_str,__func__,##__VA_ARGS__ ); \
+      } while (0)
+    #define FLOGD(format, ...) \
+      do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[%s] [%s@%s,%d] [D] \033[0;33;32m " format "\033[0m\n",\
+        g_msts_str,__func__,__BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
       } while (0)
 #else
     #define MLOGD(fmt,...)
+    #define FLOGD(fmt,...)
 #endif
 
 //#define MLOGI(fmt,...)  fprintf(stderr, "%s [I] %22s | \033[0;0;37m " fmt "\033[0m\n",\
@@ -102,24 +109,50 @@ static std::string inline sys_s_ts_str( void ){
 //                                    tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ )
 //#define MLOGE(fmt,...)  fprintf(stderr, "%s [E] %22s | \033[0;33;31m " fmt "\033[0m\n",\
 //                                    tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ ) ; assert( false )
+
+//---------------------simple-------------------------------------
 #define MLOGE( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
-        fprintf( stdout, "[E] [%s] [%s@%s,%d] \033[0;33;31m " format "\033[0m\n",\
-           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
-    } while (0)
+        fprintf( stdout, "[%s] [%s] [E] \033[0;33;31m " format "\033[0m\n",\
+           g_msts_str,__func__, ##__VA_ARGS__ ); \
+        exit(1);\
+  } while (0)
 
 #define MLOGW( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
-        fprintf( stdout, "[W] [%s] [%s@%s,%d] \033[0;0;33m " format "\033[0m\n",\
-           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+        fprintf( stdout, "[%s] [%s] [W] \033[0;0;33m " format "\033[0m\n",\
+           g_msts_str,__func__, ##__VA_ARGS__ ); \
     } while (0)
 
 #define MLOGI( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
-        fprintf( stdout, "[I] [%s] [%s@%s,%d] \033[0;0;37m " format "\033[0m\n",\
+        fprintf( stdout, "[%s] [%s] [I] \033[0;0;37m " format "\033[0m\n",\
+           g_msts_str,__func__,##__VA_ARGS__ ); \
+    } while (0)
+
+//-----------------------full-----------------------------------
+#define FLOGE( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[%s] [%s@%s,%d] [E] \033[0;33;31m " format "\033[0m\n",\
+           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+        exit(1);\
+  } while (0)
+
+#define FLOGW( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[%s] [%s@%s,%d] [W] \033[0;0;33m " format "\033[0m\n",\
+           g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
+    } while (0)
+
+#define FLOGI( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[%s] [%s@%s,%d] [I] \033[0;0;37m " format "\033[0m\n",\
            g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
     } while (0)
 //--------------------------------LOG ABOUT---------------------------------------
@@ -189,7 +222,6 @@ static void nano_usleep( uint32_t useconds ) {
 //---------------------------------OPT RET END------------------------------------------
 
 #endif
-
 
 
 
