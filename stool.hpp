@@ -372,5 +372,3 @@ namespace  stool   {
 
 #endif // STOOL_H
 
-
-

@@ -23,14 +23,14 @@ static char g_msts_str[MS_TIMESTAMP_STR_LENGTH]={'\0'};
 namespace  tool {
 
 //获取系统毫秒级时间戳
-static long sys_ms_timestamp( void ) {
+inline long sys_ms_timestamp( void ) {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     return tv.tv_sec*1000 + tv.tv_usec/1000;  //获取毫秒
 }
 
 ///毫秒部分字符串获取
-static void get_msstr( int ms, char* msstr ){
+inline void get_msstr( int ms, char* msstr ){
     int a;
     a = ms / 100;
     msstr[0] = char( a + 0x30 );
@@ -43,7 +43,7 @@ static void get_msstr( int ms, char* msstr ){
 ///毫秒级时间戳转字符串
 //采用固定长度字符串存储
 //格式如下:2019/07/14 00:48:13.298长度为 MS_TIMESTAMP_STR_LENGTH
-static void  ms_ts2str_c( long stamp, char* timestamp_str ){
+inline void  ms_ts2str_c( long stamp, char* timestamp_str ){
     time_t tt = time_t( stamp / 1000 );
     struct tm *ttime;
     ttime = localtime(&tt);
@@ -60,13 +60,13 @@ static void  ms_ts2str_c( long stamp, char* timestamp_str ){
 }
 
 //获取系统毫秒级时间字符串,char*格式
-static void sys_ms_ts_str_c( char* timestamp_str ){
+inline void sys_ms_ts_str_c( char* timestamp_str ){
     long ms_timestamp = sys_ms_timestamp();
     ms_ts2str_c( ms_timestamp, timestamp_str ) ;
 }
 
 //获取系统毫秒级时间字符串,string格式
-static std::string inline sys_ms_ts_str( void ){
+inline std::string sys_ms_ts_str( void ){
     long ms_timestamp = sys_ms_timestamp();
     char timestamp_str[MS_TIMESTAMP_STR_LENGTH]={'\0'};
     ms_ts2str_c( ms_timestamp, timestamp_str );
@@ -75,7 +75,7 @@ static std::string inline sys_ms_ts_str( void ){
 }
 
 //获取系统秒级时间字符串, string格式
-static std::string inline sys_s_ts_str( void ){
+inline std::string sys_s_ts_str( void ){
     std::string s = sys_ms_ts_str();
     return s.substr(0, ( s.size() - 4 )) ;
 }
@@ -170,7 +170,7 @@ static std::string inline sys_s_ts_str( void ){
 #include <time.h>
 
 ////使用select封装微秒级延时替代usleep(已废弃)
-static void select_usleep( long us ) {
+inline void select_usleep( long us ) {
     struct timeval timeout;
     timeout.tv_sec = us / 1000000;
     timeout.tv_usec = us % 1000000;
@@ -182,7 +182,7 @@ static void select_usleep( long us ) {
     }
 }
 ////使用nanosleep封装微秒级延时替代usleep(已废弃)
-static void nano_usleep( uint32_t useconds ) {
+inline void nano_usleep( uint32_t useconds ) {
     struct timespec ts = {
         useconds / 1000000,
         (useconds % 1000000) * 1000
