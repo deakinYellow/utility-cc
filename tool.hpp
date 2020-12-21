@@ -84,8 +84,8 @@ inline std::string sys_s_ts_str( void ){
 
 //--------------------------------LOG ABOUT---------------------------------------
 //在需要开启debuglog的目标源文件开头包含tool.h前引入,如果全局开启,则在这里引入
-//#define USING_MLOGD
-#ifdef USING_MLOGD
+//#define ENABLE_MLOGD
+#ifdef ENABLE_MLOGD
     #define MLOGD(format, ...) \
       do { \
           tool::sys_ms_ts_str_c( g_msts_str );\

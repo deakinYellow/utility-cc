@@ -214,77 +214,87 @@ namespace  stool {
     return y;
   }
 
-//计算FPS
+
+/**
+* @brief  计算某一段程序调用的频率FPS
+*         使用方法:
+*           static stool::fps fps;
+*           fps.sampling() ###在需要测量频率的地方采样
+* @param  [in]
+* @param  [out]
+* @retval
+* @note
+*/
 class FPS {
 
 public:
-
   void sampling(){
     long current_time = tool::sys_ms_timestamp();
     //printf("current_time: %ld \n" , current_time );
-    uint normal_fps =  fpsNormal( current_time );
+    long normal_fps =  fpsNormal( current_time );
     if( normal_fps != 0 ){
-        this->fps_normal = normal_fps;
+        fps_normal_ = normal_fps;
     }
-    fps_real = fpsReal( current_time );
-    fps_average = fpsAverage( current_time );
+    fps_real_ = fpsReal( current_time );
+    fps_average_ = fpsAverage( current_time );
   }
 
-  uint get_normal_fps( void ){
-    return  fps_normal;
+  long get_normal_fps( void ){
+    return  fps_normal_;
   }
 
   double get_real_fps( void ){
-    return  fps_real;
+    return  fps_real_;
   }
 
   double get_avr_fps( void ){
-    return  fps_average;
+    return  fps_average_;
   }
 
 private:
+  double fps_real_;
+  long real_last_time_=0;
 
-  uint   fps_normal;
-  double fps_real;
-  double fps_average;
+  long fps_normal_;
+  long normal_count_ = 0;
+  long normal_last_count_time_ =0;
+
+  double fps_average_;
+  long average_last_count_time_ =0;
+  long average_count_ =0;
 
   //秒级实时帧率，帧率为整数
-  uint fpsNormal( const long current_time ){
-    static uint count = 0;
-    static long last_count_time =0;
-    uint fps = 0;
-    count++;
-    if( current_time - last_count_time >= 1000 ){
-        fps = count;
-        count = 0;
-        last_count_time = current_time;
+  long fpsNormal( const long current_time ){
+    long fps = 0;
+    normal_count_++;
+    if( current_time - normal_last_count_time_ >= 1000 ){
+        fps = normal_count_;
+        normal_count_ = 0;
+        normal_last_count_time_ = current_time;
       }
     return fps;
   }
-
   //实时帧率 //平滑性不好
   double fpsReal( const long current_time ){
-    static long last_time =0;
     double fps = 0;
     //printf("dt time: %ld \n" , current_time - last_time );
-    if( current_time != last_time ){
-        fps = 1000.0 / double( current_time - last_time );
-        last_time = current_time;
+    if( current_time != real_last_time_ ){
+        fps = 1000.0 / double( current_time - real_last_time_ );
+        real_last_time_ = current_time;
       }
     return fps;
   }
   //总平均帧率
   double fpsAverage( const long current_time ){
-    static long last_count_time =0;
-    static long count =0;
-    count++;
-    if( last_count_time == 0 && current_time != 0 ){
-        last_count_time = current_time;
-        return  0;
-      }else if( current_time != last_count_time ){
-        double fps = 1000 * ( double( count )  / double( current_time - last_count_time ) );
-        return fps;
-      }
+    double fps=0.0;
+    average_count_++;
+    if( average_last_count_time_ == 0 && current_time != 0 ){
+        average_last_count_time_ = current_time;
+        fps = 0.0;
+    }else if( current_time != average_last_count_time_ ){
+        fps = 1000 * ( double( average_count_ )  / double( current_time - average_last_count_time_ ) );
+    }
+    return fps;
   }
 
 };
