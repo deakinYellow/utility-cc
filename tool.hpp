@@ -89,7 +89,7 @@ inline std::string sys_s_ts_str( void ){
     #define MLOGD(format, ...) \
       do { \
           tool::sys_ms_ts_str_c( g_msts_str );\
-          fprintf( stdout, "[%s] [%s] [D] \033[0;33;32m " format "\033[0m\n",\
+          fprintf( stdout, "[%s] [%-22s] [D] \033[0;33;32m " format "\033[0m\n",\
            g_msts_str,__func__,##__VA_ARGS__ ); \
       } while (0)
     #define FLOGD(format, ...) \
@@ -114,7 +114,7 @@ inline std::string sys_s_ts_str( void ){
 #define MLOGE( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
-        fprintf( stdout, "[%s] [%s] [E] \033[0;33;31m " format "\033[0m\n",\
+        fprintf( stdout, "[%s] [%-22s] [E] \033[0;33;31m " format "\033[0m\n",\
            g_msts_str,__func__, ##__VA_ARGS__ ); \
         exit(1);\
   } while (0)
@@ -122,14 +122,14 @@ inline std::string sys_s_ts_str( void ){
 #define MLOGW( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
-        fprintf( stdout, "[%s] [%s] [W] \033[0;0;33m " format "\033[0m\n",\
+        fprintf( stdout, "[%s] [%-22s] [W] \033[0;0;33m " format "\033[0m\n",\
            g_msts_str,__func__, ##__VA_ARGS__ ); \
     } while (0)
 
 #define MLOGI( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
-        fprintf( stdout, "[%s] [%s] [I] \033[0;0;37m " format "\033[0m\n",\
+        fprintf( stdout, "[%s] [%-22s] [I] \033[0;0;37m " format "\033[0m\n",\
            g_msts_str,__func__,##__VA_ARGS__ ); \
     } while (0)
 
@@ -216,7 +216,7 @@ inline void nano_usleep( uint32_t useconds ) {
 //---------------------------------TIME ABOUT-------------------------------------
 
 //---------------------------------OPT RET------------------------------------------
-#define MOK   0
+#define MSUCCESS   0
 #define MFAIL   1
 #define MSTATUS int
 //---------------------------------OPT RET END------------------------------------------
