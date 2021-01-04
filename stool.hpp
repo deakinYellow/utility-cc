@@ -354,9 +354,31 @@ namespace  stool   {
 
   ////求vector均值
   template< typename T>
-  static T GetVetorMean( const std::vector<T>& vector ){
+  static T GetVectorMean( const std::vector<T>& vector ){
     double sum = std::accumulate( std::begin( vector ), std::end( vector ), 0.0 );
     return T( sum / vector.size() );
+  }
+
+  ////求vector方差
+  template< typename T>
+  static T GetVectorVariance( const std::vector<T>& vector ){
+    double mean = GetVectorMean<T>( vector );
+    double sum_var = 0;
+    for( auto it = vector.begin(); it < vector.end() ; it++ ) {
+      sum_var += std::pow( ( *it - mean ), 2 );
+    }
+    double s = sum_var / ( vector.size() - 1 );  //无偏估计
+    return T(s);
+  }
+
+  ////求vector标准差
+  template< typename T>
+  static T GetVectorStandardDeviation( const std::vector<T>& vector ){
+    double s;
+    double sd;
+    s = GetVectorVariance<T>( vector );
+    sd = std::sqrt(s);
+    return T(sd);
   }
 
   /**
