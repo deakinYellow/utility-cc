@@ -111,12 +111,12 @@ inline std::string sys_s_ts_str( void ){
 //                                    tool::sys_ms_ts_str().c_str(), __FUNCTION__, ##__VA_ARGS__ ) ; assert( false )
 
 //---------------------simple-------------------------------------
+
 #define MLOGE( format, ...) \
     do { \
         tool::sys_ms_ts_str_c( g_msts_str );\
         fprintf( stdout, "[%s] [%-22s] [E] \033[0;33;31m " format "\033[0m\n",\
            g_msts_str,__func__, ##__VA_ARGS__ ); \
-        exit(1);\
   } while (0)
 
 #define MLOGW( format, ...) \
@@ -139,7 +139,6 @@ inline std::string sys_s_ts_str( void ){
         tool::sys_ms_ts_str_c( g_msts_str );\
         fprintf( stdout, "[%s] [%s@%s,%d] [E] \033[0;33;31m " format "\033[0m\n",\
            g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
-        exit(1);\
   } while (0)
 
 #define FLOGW( format, ...) \
@@ -155,6 +154,15 @@ inline std::string sys_s_ts_str( void ){
         fprintf( stdout, "[%s] [%s@%s,%d] [I] \033[0;0;37m " format "\033[0m\n",\
            g_msts_str,__func__, __BASE_FILE__, __LINE__, ##__VA_ARGS__ ); \
     } while (0)
+
+#define MLOGE_EXIT( format, ...) \
+    do { \
+        tool::sys_ms_ts_str_c( g_msts_str );\
+        fprintf( stdout, "[%s] [%-22s] [E] \033[0;33;31m " format "\033[0m\n",\
+           g_msts_str,__func__, ##__VA_ARGS__ ); \
+        exit(1);\
+  } while (0)
+
 //--------------------------------LOG ABOUT---------------------------------------
 
 
